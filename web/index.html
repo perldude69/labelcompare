@@ -10,27 +10,86 @@
 <body>
 <header>
   <h1>LabelCompare</h1>
-  <span class="subtitle">TTB label verification prototype</span>
+  <span class="subtitle">Check that labels match the forms</span>
   <div class="actions">
     <button id="analyzeBtn" disabled>Analyze</button>
     <button id="batchBtn">Batch Analyze</button>
     <button id="uploadBtn">Upload PDF</button>
+    <button id="resetBtn">Reset</button>
+    <button id="helpBtn">Help</button>
     <input type="file" id="fileInput" accept=".pdf" multiple hidden>
   </div>
 </header>
 <main>
   <aside id="sidebar" aria-label="Applications">
-    <ul id="pdfList"></ul>
-    <p class="drophint">Drag &amp; drop PDFs here to upload</p>
+    <div class="section">
+      <h3>Un-Processed</h3>
+      <ul id="unprocessed-list"></ul>
+      <p class="drophint">Drop PDFs here or use the Upload button above</p>
+    </div>
+
+    <details class="section">
+      <summary>Passed</summary>
+      <ul id="passed-list" class="tree"></ul>
+    </details>
+
+    <details class="section">
+      <summary>Failed</summary>
+      <ul id="failed-list" class="tree"></ul>
+    </details>
   </aside>
+
+  <div class="resize-handle" id="resize-sidebar" title="Drag to resize sidebar"></div>
   <section id="preview">
     <iframe id="pdfFrame" title="PDF preview"></iframe>
   </section>
+  <div class="resize-handle" id="resize-results" title="Drag to resize results panel"></div>
   <section id="results">
-    <h2>Results</h2>
-    <div id="resultBody"><p class="muted">Select a PDF and click Analyze.</p></div>
+    <h2>Checks</h2>
+    <div id="resultBody"><p class="muted">Pick a file on the left and click Analyze.</p></div>
   </section>
 </main>
+
+<div id="helpModal" class="modal">
+  <div class="modal-content">
+    <span class="close" id="helpClose">&times;</span>
+    <h2>How to use LabelCompare</h2>
+
+    <p><strong>Goal:</strong> Quickly check that the label on the bottle matches what the company wrote on the official form.</p>
+
+    <h3>Simple steps</h3>
+    <ol>
+      <li><strong>Add files</strong><br>
+        Drag PDFs into the left list or click <strong>Upload PDF</strong>.</li>
+
+      <li><strong>Check them</strong><br>
+        Click a file, then <strong>Analyze</strong>. Or click <strong>Batch Analyze</strong> to do several at once.<br>
+        You’ll see a clear “Looks good” or “Review needed” at the top.</li>
+
+      <li><strong>Look at the key checks</strong><br>
+        The table shows what the form says vs. what’s actually printed on the label.<br>
+        Pay special attention to the government warning box — it must be the exact text and in ALL CAPS.</li>
+
+      <li><strong>Decide</strong><br>
+        After analysis, the file is automatically sorted into the <strong>Passed</strong> or <strong>Failed</strong> folder based on the 3 requirements (All CAPS government warning, brand match to the form, and ABV match).<br>
+        Batch mode does this for all files at once.</li>
+    </ol>
+
+    <h3>Tips</h3>
+    <ul>
+      <li>Always open “See what the AI read” if something looks wrong — you can compare it to the actual picture on the left.</li>
+      <li>Click <strong>Analyze</strong> again anytime to re-check a file.</li>
+      <li>The tool is here to help catch obvious problems fast. You still make the final call.</li>
+      <li>Drag the lines between the three columns to give the picture more or less room.</li>
+      <li><strong>Reset</strong> (top right) clears everything if you want to start over.</li>
+    </ul>
+
+    <p style="margin-top: 12px; font-size: 13px; color: #666;">
+      Everything runs on your computer. Nothing is sent anywhere.
+    </p>
+  </div>
+</div>
+
 <script src="/static/app.js"></script>
 </body>
 </html>
