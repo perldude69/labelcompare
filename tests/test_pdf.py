@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from server.pdf import sanitize_pdf_bytes, render_pages
+from server.pdf import sanitize_pdf_bytes, render_pages, render_page_views
 
 APPS = Path(__file__).resolve().parent.parent / "applications"
 
@@ -33,3 +33,11 @@ def test_render_pages_scan():
     raw = (APPS / "ABCWine-scan.pdf").read_bytes()
     pages = render_pages(raw, dpi=72)
     assert len(pages) == 1
+
+
+def test_render_page_views_three_views_per_page():
+    raw = (APPS / "ABCWine-scan.pdf").read_bytes()
+    pages = render_page_views(raw, dpi=72)
+    assert len(pages) == 1
+    assert len(pages[0]) == 3  # full, top half, bottom half
+    assert all(v.startswith(b"\x89PNG") for v in pages[0])

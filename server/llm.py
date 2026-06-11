@@ -31,6 +31,9 @@ the sentence about health problems; preserve every character's case exactly.
 
 Use null for anything not present.
 
+The transcript contains overlapping views of each page, so the same text \
+may appear more than once; treat duplicates as a single occurrence.
+
 TRANSCRIPT:
 {transcript}
 """

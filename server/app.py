@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from server.llm import LlmError, extract_fields, ocr_page
-from server.pdf import render_pages, sanitize_pdf_bytes
+from server.pdf import render_page_views, sanitize_pdf_bytes
 from server.store import Store
 from server.verify import verdict
 
@@ -99,11 +99,13 @@ def analyze(name: str):
     with _analyze_lock:
         progress[name] = "rendering pages"
         try:
-            pages = render_pages(path.read_bytes())
+            pages = render_page_views(path.read_bytes())
             transcripts = []
-            for i, png in enumerate(pages, 1):
-                progress[name] = f"OCR page {i}/{len(pages)}"
-                transcripts.append(ocr_page(png))
+            for i, views in enumerate(pages, 1):
+                for j, png in enumerate(views, 1):
+                    progress[name] = (f"OCR page {i}/{len(pages)} "
+                                      f"(view {j}/{len(views)})")
+                    transcripts.append(ocr_page(png))
             progress[name] = "extracting fields"
             extraction = extract_fields("\n\n".join(transcripts))
             result = verdict(extraction["application"], extraction["label"])
