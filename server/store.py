@@ -15,6 +15,9 @@ class Store:
             except (json.JSONDecodeError, OSError):
                 self._data = {}
 
+    def _save(self):
+        self.path.write_text(json.dumps(self._data, indent=2))
+
     def get(self, name, mtime):
         entry = self._data.get(name)
         if entry and entry["mtime"] == mtime:
@@ -24,4 +27,23 @@ class Store:
     def put(self, name, mtime, result):
         with self._lock:
             self._data[name] = {"mtime": mtime, "result": result}
-            self.path.write_text(json.dumps(self._data, indent=2))
+            self._save()
+
+    def delete(self, name):
+        with self._lock:
+            if self._data.pop(name, None) is not None:
+                self._save()
+
+    def clear(self):
+        with self._lock:
+            self._data = {}
+            self._save()
+
+    def rename(self, old, new, mtime):
+        """Re-key an entry after its file was renamed/moved on disk."""
+        with self._lock:
+            entry = self._data.pop(old, None)
+            if entry is None:
+                return
+            self._data[new] = {"mtime": mtime, "result": entry["result"]}
+            self._save()
