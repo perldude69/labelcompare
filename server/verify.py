@@ -48,10 +48,15 @@ def check_warning(warning):
     if not warning or not warning.strip():
         return result
     result["present"] = True
+    # Extraction often includes adjacent label lines; judge only the span
+    # from "GOVERNMENT WARNING" through "HEALTH PROBLEMS."
+    m = re.search(r"government\s+warning.*?health\s+problems\s*\.?",
+                  warning, re.IGNORECASE | re.DOTALL)
+    candidate = m.group(0) if m else warning
     # Content: compare normalized (case-insensitive) against statutory text.
-    result["content_ok"] = normalize(warning) == normalize(STATUTORY_WARNING)
+    result["content_ok"] = normalize(candidate) == normalize(STATUTORY_WARNING)
     # Caps: every letter in the warning must be uppercase.
-    result["caps_ok"] = warning == warning.upper()
+    result["caps_ok"] = candidate == candidate.upper()
     result["ok"] = result["content_ok"] and result["caps_ok"]
     return result
 

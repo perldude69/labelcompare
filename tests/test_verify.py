@@ -50,6 +50,14 @@ def test_check_warning_missing_clause_fails_content():
     assert not r["content_ok"] and not r["ok"]
 
 
+def test_check_warning_ignores_adjacent_label_text():
+    # Extraction often glues neighboring label lines onto the warning.
+    r = check_warning(GOOD_WARNING + "\nCONTAINS SULFITES")
+    assert r["content_ok"] and r["caps_ok"] and r["ok"]
+    r = check_warning("750 ML\n" + GOOD_WARNING + "\ncontains sulfites")
+    assert r["ok"]  # lowercase junk outside the warning must not fail caps
+
+
 def test_check_warning_absent():
     r = check_warning(None)
     assert not r["present"] and not r["ok"]

@@ -29,7 +29,11 @@ exact capitalization from the transcript. For "government_warning", copy the \
 full warning verbatim starting at "GOVERNMENT WARNING" through the end of \
 the sentence about health problems; preserve every character's case exactly.
 
-Use null for anything not present.
+Use null for anything not present. Never copy a value from the label into \
+an "application" field or vice versa — each value must actually appear in \
+that part of the document. The government warning ends after "HEALTH \
+PROBLEMS."; do not include any text that follows it (such as "CONTAINS \
+SULFITES").
 
 The transcript contains overlapping views of each page, so the same text \
 may appear more than once; treat duplicates as a single occurrence.
