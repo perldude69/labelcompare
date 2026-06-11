@@ -83,7 +83,9 @@ Open `http://<host>:1776/`. Run tests with `.venv/bin/pytest`.
 ## Known limitations (prototype)
 
 - Analysis is sequential (one at a time; the models share one machine) and
-  takes roughly 30–90 seconds per document on local models.
+  takes roughly 1–4 minutes per document: each page is OCRed in three views
+  (full page + halves, ~17 s each on this hardware) because the OCR model
+  skips form columns when given only the whole page.
 - No authentication; binds to `0.0.0.0` by design for LAN access. Do not
   expose beyond a trusted network.
 - OCR/extraction quality is bounded by the local models; the verdict page
