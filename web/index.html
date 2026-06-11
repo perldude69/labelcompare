@@ -1,1 +1,35 @@
-<!doctype html><title>LabelCompare</title>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LabelCompare — TTB Label Verification</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <h1>LabelCompare</h1>
+  <span class="subtitle">TTB label verification prototype</span>
+  <div class="actions">
+    <button id="analyzeBtn" disabled>Analyze</button>
+    <button id="batchBtn">Batch Analyze</button>
+    <button id="uploadBtn">Upload PDF</button>
+    <input type="file" id="fileInput" accept=".pdf" multiple hidden>
+  </div>
+</header>
+<main>
+  <aside id="sidebar" aria-label="Applications">
+    <ul id="pdfList"></ul>
+    <p class="drophint">Drag &amp; drop PDFs here to upload</p>
+  </aside>
+  <section id="preview">
+    <iframe id="pdfFrame" title="PDF preview"></iframe>
+  </section>
+  <section id="results">
+    <h2>Results</h2>
+    <div id="resultBody"><p class="muted">Select a PDF and click Analyze.</p></div>
+  </section>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>
