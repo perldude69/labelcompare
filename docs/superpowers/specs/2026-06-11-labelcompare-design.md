@@ -54,6 +54,11 @@ browser ──> FastAPI (localhost)
 
 - `GET /api/applications` — list PDFs with status:
   `pending | analyzing | pass | fail | error`
+- `POST /api/applications` — upload one or more PDFs (multipart form).
+  Saved into `applications/`. Filename is sanitized (basename only, `.pdf`
+  extension required); a name collision gets a numeric suffix
+  (`name-2.pdf`). Content is accepted if `%PDF` appears in the first 1KB
+  (allowing dirty prefixes like `cies.pdf`); otherwise rejected with 400.
 - `GET /api/applications/{name}/pdf` — sanitized PDF bytes for browser preview
 - `POST /api/applications/{name}/analyze` — run pipeline, return full result
 - `GET /api/applications/{name}/result` — cached result (404 if none)
@@ -100,6 +105,9 @@ Performance: no hard latency budget (prototype). UI shows per-stage progress
   sanitized-PDF endpoint, browser-native viewer).
 - **Buttons**: `Analyze` (selected PDF) and `Batch Analyze` (all PDFs
   sequentially; sidebar markers update as each finishes).
+- **Upload**: an `Upload PDF` button (file picker, multiple files allowed)
+  plus drag-and-drop onto the sidebar. Uploaded files appear in the list
+  as `pending`; analysis is started by the user, not automatically.
 - **Results panel** (for analyzed PDFs): field table — application value vs
   label value vs status. Matches green, mismatches red, **missing required
   items highlighted amber**. Government warning shown verbatim with its
@@ -121,5 +129,5 @@ Performance: no hard latency budget (prototype). UI shows per-stage progress
 
 ## Out of scope
 
-- Upload UI (folder is the source of truth), auth, deployment, COLA system
-  integration, parallel batch processing.
+- Auth, deployment, COLA system integration, parallel batch processing,
+  deleting/renaming PDFs from the UI.
