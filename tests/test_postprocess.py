@@ -71,6 +71,15 @@ def test_leakage_guard_nulls_form_only_abv():
     assert ext["label"]["alcohol_content"] is None
 
 
+def test_leakage_guard_nulls_when_application_missing():
+    """Even if application field is None, a label value that does not appear
+    in the separated label-artwork text must be nullified."""
+    ext = make_extraction()
+    ext["label"]["alcohol_content"] = "45% ACV"  # only in form lines
+    postprocess_extraction(ext, TRANSCRIPTS, JOINED)
+    assert ext["label"]["alcohol_content"] is None
+
+
 def test_leakage_guard_keeps_abv_printed_on_label():
     transcripts = [FORM_SEGMENT,
                    LABEL_SEGMENT + "\nALC. 45% ACV BY VOL."]

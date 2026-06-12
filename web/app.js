@@ -1,6 +1,9 @@
 const $ = (id) => document.getElementById(id);
+const LC_BASE = window.location.pathname.startsWith('/labelcompare') ? '/labelcompare' : '';
 let selected = null;
 let sections = { unprocessed: [], validated: [], failed: [] };
+let batchTotal = 0;
+let batchPos = 0;
 
 const FIELD_LABELS = {
   brand_name: "Brand name",
@@ -50,7 +53,7 @@ function initColumnResizers() {
 
     function onMouseMove(e) {
       const delta = e.clientX - startX;
-      let newWidth = isSidebar ? startWidth + delta : startWidth - delta;
+      let newWidth = startWidth + delta;
 
       if (isSidebar) {
         newWidth = Math.max(160, Math.min(480, newWidth));
@@ -102,7 +105,7 @@ function populateList(listEl, items) {
 }
 
 async function refresh() {
-  sections = await (await fetch("/api/applications")).json();
+  sections = await (await fetch(`${LC_BASE}/api/applications`)).json();
 
   populateList($("unprocessed-list"), sections.unprocessed || []);
   populateList($("passed-list"), sections.validated || []);
@@ -112,18 +115,20 @@ async function refresh() {
   const all = (sections.unprocessed || []).concat(sections.validated || [], sections.failed || []);
   const isAnalyzing = all.find((a) => a.name === selected)?.status === "analyzing";
   $("analyzeBtn").disabled = !selected || isAnalyzing;
+
+  updateProgressDisplay();
 }
 
 async function select(name) {
   selected = name;
-  $("pdfFrame").src = `/api/applications/${encodeURIComponent(name)}/pdf`;
+  $("pdfFrame").src = `${LC_BASE}/api/applications/${encodeURIComponent(name)}/pdf`;
   await refresh();
   await showResult(name);
 }
 
 async function showResult(name) {
   const body = $("resultBody");
-  const r = await fetch(`/api/applications/${encodeURIComponent(name)}/result`);
+  const r = await fetch(`${LC_BASE}/api/applications/${encodeURIComponent(name)}/result`);
   if (!r.ok) {
     body.innerHTML = '<p class="muted">Not analyzed yet.</p>';
     return;
@@ -220,10 +225,53 @@ async function showResult(name) {
   body.innerHTML = html;
 }
 
+function computeProgress(stage) {
+  if (stage === "rendering pages") return 3;
+  const ocr = stage.match(/OCR page (\d+)\/(\d+)\s*\(view (\d+)\/(\d+)\)/);
+  if (ocr) {
+    const page = parseInt(ocr[1]), totalPages = parseInt(ocr[2]);
+    const view = parseInt(ocr[3]), totalViews = parseInt(ocr[4]);
+    return Math.round(3 + ((page - 1) * totalViews + view) / (totalPages * totalViews) * 84);
+  }
+  if (stage === "extracting fields") return 88;
+  if (stage.startsWith("analyzing compliance")) return 95;
+  return null;
+}
+
+function updateProgressDisplay() {
+  const container = $("progress-container");
+  const body = $("resultBody");
+  const all = (sections.unprocessed || []).concat(sections.validated || [], sections.failed || []);
+  const analyzing = all.find(a => a.status === "analyzing");
+
+  if (analyzing && analyzing.name === selected) {
+    body.style.display = "none";
+    container.style.display = "";
+    const stage = analyzing.progress || "working...";
+    $("progress-text").textContent = batchTotal
+      ? `File ${batchPos} of ${batchTotal} — ${stage}` : stage;
+    const pct = computeProgress(stage);
+    const fill = container.querySelector(".progress-fill");
+    if (pct !== null) {
+      fill.style.width = pct + "%";
+      fill.classList.remove("indeterminate");
+    } else {
+      fill.style.width = "50%";
+      fill.classList.add("indeterminate");
+    }
+  } else {
+    container.style.display = "none";
+    body.style.display = "";
+  }
+}
+
 async function analyzeOne(name) {
-  const poll = setInterval(refresh, 1500);
+  const poll = setInterval(async () => {
+    await refresh();
+    updateProgressDisplay();
+  }, 1500);
   try {
-    await fetch(`/api/applications/${encodeURIComponent(name)}/analyze`,
+    await fetch(`${LC_BASE}/api/applications/${encodeURIComponent(name)}/analyze`,
                 { method: "POST" });
   } finally {
     clearInterval(poll);
@@ -238,7 +286,15 @@ $("batchBtn").onclick = async () => {
   $("batchBtn").disabled = true;
   try {
     const unproc = (sections.unprocessed || []);
-    for (const a of [...unproc]) await analyzeOne(a.name);
+    batchTotal = unproc.length;
+    batchPos = 0;
+    for (const a of [...unproc]) {
+      batchPos++;
+      updateProgressDisplay();
+      await analyzeOne(a.name);
+    }
+    batchTotal = 0;
+    batchPos = 0;
   } finally {
     $("batchBtn").disabled = false;
   }
@@ -251,7 +307,7 @@ async function uploadFiles(files) {
   if (!files.length) return;
   const fd = new FormData();
   for (const f of files) fd.append("files", f);
-  const r = await fetch("/api/applications", { method: "POST", body: fd });
+  const r = await fetch(`${LC_BASE}/api/applications`, { method: "POST", body: fd });
   if (!r.ok) {
     let detail = r.status;
     try { detail = (await r.json()).detail ?? detail; } catch (e) { /* noop */ }
@@ -265,7 +321,7 @@ $("resetBtn").onclick = async () => {
     return;
   }
   try {
-    const r = await fetch("/api/reset", { method: "POST" });
+    const r = await fetch(`${LC_BASE}/api/reset`, { method: "POST" });
     if (!r.ok) {
       const detail = (await r.json()).detail ?? r.status;
       throw new Error(detail);

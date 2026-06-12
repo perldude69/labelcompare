@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LabelCompare — TTB Label Verification</title>
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="static/style.css">
 </head>
 <body>
 <header>
   <h1>LabelCompare</h1>
-  <span class="subtitle">Check that labels match the forms</span>
+  <span class="subtitle"> — TTB Label Verification</span>
   <div class="actions">
     <button id="analyzeBtn" disabled>Analyze</button>
     <button id="batchBtn">Batch Analyze</button>
@@ -29,24 +29,29 @@
     </div>
 
     <details class="section">
-      <summary>Passed</summary>
+      <summary>Passed Evaluation</summary>
       <ul id="passed-list" class="tree"></ul>
     </details>
 
     <details class="section">
-      <summary>Failed</summary>
+      <summary>Failed Evaluation</summary>
       <ul id="failed-list" class="tree"></ul>
     </details>
+
   </aside>
 
   <div class="resize-handle" id="resize-sidebar" title="Drag to resize sidebar"></div>
-  <section id="preview">
-    <iframe id="pdfFrame" title="PDF preview"></iframe>
-  </section>
-  <div class="resize-handle" id="resize-results" title="Drag to resize results panel"></div>
   <section id="results">
     <h2>Checks</h2>
+    <div id="progress-container" style="display:none">
+      <div class="progress-bar"><div class="progress-fill"></div></div>
+      <p class="progress-text"></p>
+    </div>
     <div id="resultBody"><p class="muted">Pick a file on the left and click Analyze.</p></div>
+  </section>
+  <div class="resize-handle" id="resize-results" title="Drag to resize results panel"></div>
+  <section id="preview">
+    <iframe id="pdfFrame" title="PDF preview"></iframe>
   </section>
 </main>
 
@@ -77,7 +82,7 @@
 
     <h3>Tips</h3>
     <ul>
-      <li>Always open “See what the AI read” if something looks wrong — you can compare it to the actual picture on the left.</li>
+      <li>Always open “See what the AI read” if something looks wrong — you can compare it to the actual PDF on the right.</li>
       <li>Click <strong>Analyze</strong> again anytime to re-check a file.</li>
       <li>The tool is here to help catch obvious problems fast. You still make the final call.</li>
       <li>Drag the lines between the three columns to give the picture more or less room.</li>
@@ -90,6 +95,6 @@
   </div>
 </div>
 
-<script src="/static/app.js"></script>
+<script src="static/app.js"></script>
 </body>
 </html>

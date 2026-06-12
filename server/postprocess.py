@@ -89,17 +89,21 @@ def reconstruct_raw_texts(extraction, transcripts, joined_transcript):
 
 
 def strip_form_leakage(extraction, joined_transcript):
-    """Null label values that only ever appear inside form-context lines."""
-    application = extraction.get("application") or {}
+    """Null label values not found in the label-artwork text.
+
+    Uses extraction['raw_label_text'] (set by reconstruct_raw_texts) which
+    separates transcript segments using the LLM's marker lists with a
+    deterministic line-based fallback.  A label value that does not appear
+    in the artwork text at all — regardless of what the application/form
+    says — is a leakage and must be nullified.
+    """
     label = extraction.get("label") or {}
-    lines = joined_transcript.splitlines()
+    raw_label_text = extraction.get("raw_label_text") or ""
     for key in LEAKAGE_KEYS:
         val = label.get(key)
-        if not (val and application.get(key)):
+        if not val:
             continue
-        val_str = str(val).strip().lower()
-        occurrences = [ln for ln in lines if val_str in ln.lower()]
-        if occurrences and all(is_form_line(ln) for ln in occurrences):
+        if raw_label_text and str(val).strip().lower() not in raw_label_text.lower():
             label[key] = None
     extraction["label"] = label
 

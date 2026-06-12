@@ -1,7 +1,37 @@
+# Python
 __pycache__/
-.venv/
-results.json
 *.pyc
-.playwright-mcp/
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+.venv/
+venv/
+
+# Application data
+results.json
 applications/
 logs/
+*.log
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Third-party tool artifacts
+.playwright-mcp/
+.claude/

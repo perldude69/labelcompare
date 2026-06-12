@@ -236,11 +236,27 @@ def analyze(name: str):
             # Auto-sort unprocessed files into Passed (validated) / Failed.
             # Persisted above first, then re-keyed after the move so a rename
             # failure can never lose the analysis.
+            final_name = name
             if path.parent == UNPROCESSED_DIR:
                 target_dir = VALIDATED_DIR if result.get("passed") else FAILED_DIR
                 target = _unique_target(target_dir, path.name, source=path)
                 path.rename(target)
                 store.rename(name, target.name, target.stat().st_mtime)
+                final_name = target.name
+
+            # Save isolated label artwork PNGs for sidebar preview.
+            label_dir = APPS_ROOT / "label_views"
+            label_dir.mkdir(parents=True, exist_ok=True)
+            for old in list(label_dir.glob(f"{final_name}-*.png")):
+                old.unlink(missing_ok=True)
+            for marker in (extraction.get("label_markers") or []):
+                m = re.match(r"=== PAGE (\d+) VIEW (\d+) ===", marker)
+                if m:
+                    pi, vi = int(m.group(1)) - 1, int(m.group(2)) - 1
+                    if pi < len(pages) and vi < len(pages[pi]):
+                        (label_dir
+                         / f"{final_name}-p{pi + 1}v{vi + 1}.png"
+                         ).write_bytes(pages[pi][vi])
         except (LlmError, ValueError, RuntimeError) as e:
             entry = {
                 "status": "error",
@@ -254,6 +270,25 @@ def analyze(name: str):
         finally:
             progress.pop(name, None)
     return entry
+
+
+@app.get("/api/applications/{name}/label-views")
+def label_views(name: str):
+    """List saved label-artwork PNG filenames for a PDF."""
+    _resolve_pdf(name)  # validate file exists
+    views = sorted((APPS_ROOT / "label_views").glob(f"{name}-*.png"))
+    return {"views": [v.name for v in views]}
+
+
+@app.get("/api/images/label/{filename}")
+def label_image(filename: str):
+    """Serve a saved label artwork PNG."""
+    if "/" in filename or ".." in filename:
+        raise HTTPException(400)
+    path = APPS_ROOT / "label_views" / filename
+    if not path.is_file():
+        raise HTTPException(404)
+    return FileResponse(path, media_type="image/png")
 
 
 @app.get("/")
