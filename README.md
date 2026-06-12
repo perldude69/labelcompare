@@ -31,6 +31,10 @@ check (exact statutory 27 CFR 16.21 text present + ALL CAPS requirement).
 **All results are aids for human review only.** The raw OCR transcripts are
 always available so a compliance agent can verify every LLM finding.
 
+
+<img width="1917" height="629" alt="Screenshot 2026-06-11 at 18-13-02 LabelCompare — TTB Label Verification" src="https://github.com/user-attachments/assets/774ae34e-5a94-448e-ace4-c1f7947f23a5" />
+
+
 ## Approach
 
 LabelCompare combines **deterministic code checks** with **LLM reasoning**
@@ -153,6 +157,10 @@ location ^~ /labelcompare/ {
 The frontend auto-detects the `/labelcompare` prefix from `window.location.pathname`
 and adjusts all API calls accordingly. Static assets use relative paths.
 
+<img width="482" height="458" alt="Screenshot 2026-06-11 at 18-12-36 LabelCompare — TTB Label Verification" src="https://github.com/user-attachments/assets/c7ca83ae-a604-435c-a9d4-b433f203b48a" />
+
+
+
 ## Using the app
 
 - **Sidebar** (left) lists every PDF in `applications/` with a status badge:
@@ -213,4 +221,9 @@ results follow the file across renames and moves.
   Crafted with assistance from: Grok, Claude Code and Opencode where my meager 
   subscription token limits were drained.
   
-  James Hughes perldude69@gmail.com
+  * Author: James Hughes perldude69@gmail.com 
+
+  ## Deployed Application URL
+  
+  https://rich-list.info/labelcompare/ 
+  
