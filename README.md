@@ -218,8 +218,15 @@ results follow the file across renames and moves.
 - ***Speed of processing is limited to the hardware available, which is 
   mediocre at best. This will run much faster on appropriate hardware.
 
-  Crafted with assistance from: Grok, Claude Code and Opencode where my meager 
-  subscription token limits were drained.
+## Example Files Included for testing
+-   Example-ABCWine-scan.pdf
+-   Example-cies.pdf
+-   Example-smirnoff-scan.pdf
+
+## About
+
+  Crafted with assistance from my team: Grok CLI, Claude Code and Opencode, where
+  my meager subscription token limits were drained.
   
   * Author: James Hughes perldude69@gmail.com 
 
